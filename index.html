@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Workflow Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 20px;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-weight: 400;
+        }
+
+        .week-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .task-column {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .task-column:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .task-title:hover {
+            background-color: #f0f0f0;
+        }
+
+        .task-title-input {
+            font-size: 1.2rem;
+            font-weight: 500;
+            border: 1px solid #e0e0e0;
+            padding: 5px 8px;
+            border-radius: 4px;
+            width: 100%;
+            background: white;
+        }
+
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .time-input input {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            color: #000;
+            padding: 5px 10px;
+            width: 60px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .progress-container {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #000;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .timer-display {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.2s;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            border-color: #e0e0e0;
+            color: #e0e0e0;
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background-color: #f9f9f9;
+            color: #e0e0e0;
+        }
+
+        .log-container {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+        }
+
+        .log-entry {
+            font-size: 0.8rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-time {
+            color: #666;
+        }
+
+        .log-date {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .log-duration {
+            color: #000;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            margin-left: 8px;
+        }
+
+        .delete-btn:hover {
+            color: #000;
+            background-color: #f0f0f0;
+        }
+
+        .task-delete-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .task-delete-btn:hover {
+            color: #000;
+            background-color: #f0f0f0;
+        }
+
+        .manual-entry {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .manual-entry-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .manual-entry-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .form-input, .form-select {
+            padding: 8px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .add-task-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .add-task-btn {
+            background: none;
+            border: 2px dashed #e0e0e0;
+            color: #666;
+            padding: 20px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .add-task-btn:hover {
+            border-color: #000;
+            color: #000;
+            background-color: #f9f9f9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .last-week-overview {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .last-week-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .last-week-tasks {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .last-week-task {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: white;
+        }
+
+        .last-week-task-name {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .last-week-progress-text {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .last-week-tasks {
+                grid-template-columns: 1fr;
+            }
+            .manual-entry-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Digital Workflow Tracker</h1>
+            <p class="subtitle">Track your weekly tasks with precision</p>
+        </header>
+
+        <div class="week-info">
+            <p>Current Week: <span id="currentWeek"></span> | Next reset: <span id="nextReset"></span></p>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <!-- Tasks will be dynamically added here -->
+        </div>
+
+        <div class="add-task-section" id="addTaskSection">
+            <button class="add-task-btn" id="addTaskBtn">
+                <i class="fas fa-plus"></i> Add New Task
+            </button>
+        </div>
+
+        <div class="manual-entry">
+            <div class="manual-entry-title">Manually Add Work Session</div>
+            <div class="manual-entry-form" id="manualEntryForm">
+                <div class="form-group">
+                    <label class="form-label">Task</label>
+                    <select class="form-select" id="manualTaskSelect">
+                        <option value="">Select a task</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Date & Time</label>
+                    <input type="datetime-local" class="form-input" id="manualStartTime">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Date & Time</label>
+                    <input type="datetime-local" class="form-input" id="manualEndTime">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <input type="text" class="form-input" id="manualDuration" readonly placeholder="Calculated automatically">
+                </div>
+                <div class="form-group">
+                    <button class="btn" id="manualAddBtn">Add Session</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="last-week-overview">
+            <div class="last-week-title">Last Week's Overview</div>
+            <div class="last-week-tasks" id="lastWeekTasks">
+                <!-- Last week's data will be populated here -->
+            </div>
+        </div>
+
+        <footer>
+            Digital Workflow Tracker © 2023 | Maximum 8 tasks
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize task data - now empty, will be populated from storage or defaults
+            let tasks = [];
+            const MAX_TASKS = 8;
+
+            // Week management
+            let currentWeek = getCurrentWeek();
+            let lastWeekData = null;
+
+            // Display week info
+            document.getElementById('currentWeek').textContent = formatWeek(currentWeek);
+            document.getElementById('nextReset').textContent = getNextResetDate();
+
+            // Set up event listeners
+            document.getElementById('addTaskBtn').addEventListener('click', addNewTask);
+            document.getElementById('manualAddBtn').addEventListener('click', addManualSession);
+            document.getElementById('manualStartTime').addEventListener('change', calculateManualDuration);
+            document.getElementById('manualEndTime').addEventListener('change', calculateManualDuration);
+
+            // Load data from localStorage if available
+            loadData();
+
+            // Function to add a new task
+            function addNewTask() {
+                if (tasks.length >= MAX_TASKS) {
+                    alert(`Maximum of ${MAX_TASKS} tasks allowed`);
+                    return;
+                }
+
+                const newTaskId = 'task' + (tasks.length + 1);
+                const newTask = {
+                    id: newTaskId,
+                    name: 'New Task',
+                    goal: 5,
+                    completed: 0,
+                    timer: null,
+                    startTime: null,
+                    isRunning: false,
+                    sessions: []
+                };
+
+                tasks.push(newTask);
+                renderTasks();
+                saveData();
+            }
+
+            // Function to delete a task
+            function deleteTask(taskId) {
+                if (tasks.length <= 1) {
+                    alert('You need at least one task');
+                    return;
+                }
+
+                if (confirm('Are you sure you want to delete this task? All its data will be lost.')) {
+                    tasks = tasks.filter(task => task.id !== taskId);
+                    renderTasks();
+                    saveData();
+                }
+            }
+
+            // Function to render all tasks
+            function renderTasks() {
+                const dashboard = document.getElementById('dashboard');
+                
+                if (tasks.length === 0) {
+                    dashboard.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-tasks"></i>
+                            <h3>No Tasks Yet</h3>
+                            <p>Click "Add New Task" to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                dashboard.innerHTML = '';
+                
+                tasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-column';
+                    taskElement.id = task.id;
+                    
+                    taskElement.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-title">${task.name}</div>
+                            <div class="time-input">
+                                <span>Goal:</span>
+                                <input type="number" min="0" value="${task.goal}" class="goal-input">
+                                <span>hrs</span>
+                            </div>
+                            <button class="task-delete-btn" title="Delete task">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${Math.min(100, (task.completed / task.goal) * 100)}%"></div>
+                            </div>
+                            <div class="progress-text">${task.completed.toFixed(2)} / ${task.goal} hours</div>
+                        </div>
+                        
+                        <div class="timer-display">00:00:00</div>
+                        
+                        <div class="controls">
+                            <button class="btn btn-start">START</button>
+                            <button class="btn btn-stop" disabled>STOP</button>
+                        </div>
+                        
+                        <div class="log-container"></div>
+                    `;
+                    
+                    dashboard.appendChild(taskElement);
+                    
+                    // Set up event listeners for this task
+                    setupTaskEvents(task);
+                });
+                
+                // Update manual entry task selector
+                updateManualTaskSelector();
+            }
+
+            // Function to set up event listeners for a task
+            function setupTaskEvents(task) {
+                const taskElement = document.getElementById(task.id);
+                const titleElement = taskElement.querySelector('.task-title');
+                const startBtn = taskElement.querySelector('.btn-start');
+                const stopBtn = taskElement.querySelector('.btn-stop');
+                const timerDisplay = taskElement.querySelector('.timer-display');
+                const goalInput = taskElement.querySelector('.goal-input');
+                const progressFill = taskElement.querySelector('.progress-fill');
+                const progressText = taskElement.querySelector('.progress-text');
+                const logContainer = taskElement.querySelector('.log-container');
+                const deleteBtn = taskElement.querySelector('.task-delete-btn');
+
+                // Update title when clicked
+                titleElement.addEventListener('click', function() {
+                    const currentName = task.name;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = currentName;
+                    input.className = 'task-title-input';
+                    
+                    // Replace title with input field
+                    titleElement.parentNode.replaceChild(input, titleElement);
+                    input.focus();
+                    
+                    // Save on Enter key or blur
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            saveTaskName(task, input.value, input, titleElement);
+                        }
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        saveTaskName(task, input.value, input, titleElement);
+                    });
+                });
+
+                // Update goal when input changes
+                goalInput.addEventListener('change', function() {
+                    task.goal = parseInt(this.value) || 0;
+                    updateProgress(task, progressFill, progressText);
+                    saveData();
+                });
+
+                // Start button click
+                startBtn.addEventListener('click', function() {
+                    if (!task.isRunning) {
+                        task.isRunning = true;
+                        task.startTime = new Date();
+                        startBtn.disabled = true;
+                        stopBtn.disabled = false;
+                        
+                        // Update timer every second
+                        task.timer = setInterval(() => {
+                            const now = new Date();
+                            const elapsed = Math.floor((now - task.startTime) / 1000);
+                            timerDisplay.textContent = formatTime(elapsed);
+                        }, 1000);
+                    }
+                });
+
+                // Stop button click
+                stopBtn.addEventListener('click', function() {
+                    if (task.isRunning) {
+                        task.isRunning = false;
+                        const endTime = new Date();
+                        const elapsedMs = endTime - task.startTime;
+                        const elapsedSeconds = elapsedMs / 1000;
+                        
+                        // Create session object
+                        const session = {
+                            id: Date.now(),
+                            startTime: task.startTime,
+                            endTime: endTime,
+                            duration: elapsedSeconds
+                        };
+                        
+                        // Add to completed time and sessions
+                        task.completed += elapsedSeconds / 3600; // Convert to hours
+                        task.sessions.push(session);
+                        
+                        // Update progress
+                        updateProgress(task, progressFill, progressText);
+                        
+                        // Log the session
+                        logSession(logContainer, session, task);
+                        
+                        // Reset timer
+                        clearInterval(task.timer);
+                        timerDisplay.textContent = '00:00:00';
+                        startBtn.disabled = false;
+                        stopBtn.disabled = true;
+                        
+                        // Save data
+                        saveData();
+                    }
+                });
+                
+                // Delete task button
+                deleteBtn.addEventListener('click', function() {
+                    deleteTask(task.id);
+                });
+                
+                // Render existing sessions
+                renderSessions(task, logContainer);
+            }
+
+            // Function to update manual task selector
+            function updateManualTaskSelector() {
+                const taskSelect = document.getElementById('manualTaskSelect');
+                taskSelect.innerHTML = '<option value="">Select a task</option>';
+                
+                tasks.forEach(task => {
+                    const option = document.createElement('option');
+                    option.value = task.id;
+                    option.textContent = task.name;
+                    taskSelect.appendChild(option);
+                });
+            }
+
+            // Function to calculate manual duration
+            function calculateManualDuration() {
+                const startTime = document.getElementById('manualStartTime').value;
+                const endTime = document.getElementById('manualEndTime').value;
+                
+                if (startTime && endTime) {
+                    const start = new Date(startTime);
+                    const end = new Date(endTime);
+                    
+                    if (end > start) {
+                        const durationSeconds = (end - start) / 1000;
+                        document.getElementById('manualDuration').value = formatDetailedDuration(durationSeconds);
+                    } else {
+                        document.getElementById('manualDuration').value = 'Invalid time range';
+                    }
+                }
+            }
+
+            // Function to add a manual session
+            function addManualSession() {
+                const taskId = document.getElementById('manualTaskSelect').value;
+                const startTime = document.getElementById('manualStartTime').value;
+                const endTime = document.getElementById('manualEndTime').value;
+                
+                if (!taskId) {
+                    alert('Please select a task');
+                    return;
+                }
+                
+                if (!startTime || !endTime) {
+                    alert('Please enter both start and end times');
+                    return;
+                }
+                
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                
+                if (end <= start) {
+                    alert('End time must be after start time');
+                    return;
+                }
+                
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) {
+                    alert('Selected task not found');
+                    return;
+                }
+                
+                const durationSeconds = (end - start) / 1000;
+                
+                // Create session object
+                const session = {
+                    id: Date.now(),
+                    startTime: start,
+                    endTime: end,
+                    duration: durationSeconds
+                };
+                
+                // Add to completed time and sessions
+                task.completed += durationSeconds / 3600; // Convert to hours
+                task.sessions.push(session);
+                
+                // Update progress
+                const taskElement = document.getElementById(task.id);
+                const progressFill = taskElement.querySelector('.progress-fill');
+                const progressText = taskElement.querySelector('.progress-text');
+                const logContainer = taskElement.querySelector('.log-container');
+                
+                updateProgress(task, progressFill, progressText);
+                logSession(logContainer, session, task);
+                
+                // Clear form
+                document.getElementById('manualStartTime').value = '';
+                document.getElementById('manualEndTime').value = '';
+                document.getElementById('manualDuration').value = '';
+                
+                // Save data
+                saveData();
+                
+                alert('Manual session added successfully');
+            }
+
+            // The rest of the functions remain the same as in the previous version
+            // (saveTaskName, updateProgress, formatTime, formatDetailedDuration, 
+            // logSession, deleteSession, renderSessions, week management functions, etc.)
+            
+            // Function to save task name
+            function saveTaskName(task, newName, inputElement, titleElement) {
+                if (newName.trim() !== '') {
+                    task.name = newName.trim();
+                    titleElement.textContent = task.name;
+                }
+                
+                // Replace input with title
+                inputElement.parentNode.replaceChild(titleElement, inputElement);
+                
+                // Update manual task selector
+                updateManualTaskSelector();
+                
+                // Save data
+                saveData();
+            }
+
+            // Function to update progress bar and text
+            function updateProgress(task, progressFill, progressText) {
+                const percentage = Math.min(100, (task.completed / task.goal) * 100);
+                progressFill.style.width = `${percentage}%`;
+                progressText.textContent = `${task.completed.toFixed(2)} / ${task.goal} hours`;
+            }
+
+            // Function to format time in HH:MM:SS
+            function formatTime(seconds) {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            // Function to format duration in detailed format
+            function formatDetailedDuration(seconds) {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                
+                if (hrs > 0) {
+                    return `${hrs}h, ${mins}m, ${secs}s`;
+                } else if (mins > 0) {
+                    return `${mins}m, ${secs}s`;
+                } else {
+                    return `${secs}s`;
+                }
+            }
+
+            // Function to log a work session
+            function logSession(logContainer, session, task) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.dataset.sessionId = session.id;
+                
+                const startStr = session.startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const endStr = session.endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateStr = session.startTime.toLocaleDateString();
+                const durationStr = formatDetailedDuration(session.duration);
+                
+                logEntry.innerHTML = `
+                    <div>
+                        <div class="log-time">${startStr} - ${endStr}</div>
+                        <div class="log-date">${dateStr}</div>
+                    </div>
+                    <div>
+                        <span class="log-duration">${durationStr}</span>
+                        <button class="delete-btn" title="Delete session">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add delete functionality
+                const deleteBtn = logEntry.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function() {
+                    deleteSession(task, session.id, logEntry);
+                });
+                
+                logContainer.prepend(logEntry);
+            }
+            
+            // Function to delete a session
+            function deleteSession(task, sessionId, logEntry) {
+                // Find the session index
+                const sessionIndex = task.sessions.findIndex(s => s.id === sessionId);
+                
+                if (sessionIndex !== -1) {
+                    // Subtract the session duration from completed time
+                    task.completed -= task.sessions[sessionIndex].duration / 3600; // Convert to hours
+                    
+                    // Remove the session
+                    task.sessions.splice(sessionIndex, 1);
+                    
+                    // Remove the log entry
+                    logEntry.remove();
+                    
+                    // Update progress
+                    const taskElement = document.getElementById(task.id);
+                    const progressFill = taskElement.querySelector('.progress-fill');
+                    const progressText = taskElement.querySelector('.progress-text');
+                    updateProgress(task, progressFill, progressText);
+                    
+                    // Save data
+                    saveData();
+                }
+            }
+            
+            // Function to render existing sessions
+            function renderSessions(task, logContainer) {
+                // Clear existing logs
+                logContainer.innerHTML = '';
+                
+                // Sort sessions by start time (newest first)
+                task.sessions.sort((a, b) => b.startTime - a.startTime);
+                
+                // Render each session
+                task.sessions.forEach(session => {
+                    logSession(logContainer, session, task);
+                });
+            }
+
+            // Week management functions
+            function getCurrentWeek() {
+                const now = new Date();
+                const startOfYear = new Date(now.getFullYear(), 0, 1);
+                const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+                return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+            }
+
+            function formatWeek(weekNumber) {
+                return `Week ${weekNumber}, ${new Date().getFullYear()}`;
+            }
+
+            function getNextResetDate() {
+                const now = new Date();
+                const daysUntilSunday = 7 - now.getDay();
+                const nextSunday = new Date(now);
+                nextSunday.setDate(now.getDate() + daysUntilSunday);
+                nextSunday.setHours(0, 0, 0, 0);
+                return nextSunday.toLocaleDateString();
+            }
+
+            function checkForWeekReset() {
+                const savedWeek = localStorage.getItem('currentWeek');
+                const currentWeek = getCurrentWeek();
+                
+                if (savedWeek && parseInt(savedWeek) !== currentWeek) {
+                    // Week has changed, save last week's data and reset current data
+                    saveLastWeekData();
+                    resetCurrentWeekData();
+                }
+                
+                // Update current week in storage
+                localStorage.setItem('currentWeek', currentWeek.toString());
+            }
+
+            function saveLastWeekData() {
+                const lastWeekData = tasks.map(task => ({
+                    name: task.name,
+                    goal: task.goal,
+                    completed: task.completed,
+                    sessions: [...task.sessions]
+                }));
+                
+                localStorage.setItem('lastWeekData', JSON.stringify(lastWeekData));
+            }
+
+            function resetCurrentWeekData() {
+                tasks.forEach(task => {
+                    task.completed = 0;
+                    task.sessions = [];
+                });
+                
+                renderTasks();
+                saveData();
+            }
+
+            function loadLastWeekData() {
+                const savedData = localStorage.getItem('lastWeekData');
+                const lastWeekContainer = document.getElementById('lastWeekTasks');
+                
+                if (savedData) {
+                    const lastWeekTasks = JSON.parse(savedData);
+                    lastWeekContainer.innerHTML = '';
+                    
+                    lastWeekTasks.forEach(task => {
+                        const taskElement = document.createElement('div');
+                        taskElement.className = 'last-week-task';
+                        
+                        const percentage = Math.min(100, (task.completed / task.goal) * 100);
+                        
+                        taskElement.innerHTML = `
+                            <div class="last-week-task-name">${task.name}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <div class="last-week-progress-text">${task.completed.toFixed(2)} / ${task.goal} hours</div>
+                        `;
+                        
+                        lastWeekContainer.appendChild(taskElement);
+                    });
+                } else {
+                    lastWeekContainer.innerHTML = '<p>No data available for last week</p>';
+                }
+            }
+
+            // Function to save data to localStorage
+            function saveData() {
+                const dataToSave = tasks.map(task => {
+                    // Convert Date objects to strings for storage
+                    const sessionsForStorage = task.sessions.map(session => ({
+                        ...session,
+                        startTime: session.startTime.toISOString(),
+                        endTime: session.endTime.toISOString()
+                    }));
+                    
+                    return {
+                        ...task,
+                        sessions: sessionsForStorage
+                    };
+                });
+                
+                localStorage.setItem('workflowTrackerData', JSON.stringify(dataToSave));
+            }
+
+            // Function to load data from localStorage
+            function loadData() {
+                checkForWeekReset();
+                
+                const savedData = localStorage.getItem('workflowTrackerData');
+                
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    tasks = parsedData.map(savedTask => {
+                        // Convert session strings back to Date objects
+                        const sessions = (savedTask.sessions || []).map(session => ({
+                            ...session,
+                            startTime: new Date(session.startTime),
+                            endTime: new Date(session.endTime),
+                            duration: session.duration || (new Date(session.endTime) - new Date(session.startTime)) / 1000
+                        }));
+                        
+                        return {
+                            ...savedTask,
+                            timer: null,
+                            startTime: null,
+                            isRunning: false,
+                            sessions: sessions
+                        };
+                    });
+                } else {
+                    // Create default tasks if no saved data
+                    tasks = [
+                        { id: 'task1', name: 'Task 1', goal: 10, completed: 0, timer: null, startTime: null, isRunning: false, sessions: [] },
+                        { id: 'task2', name: 'Task 2', goal: 8, completed: 0, timer: null, startTime: null, isRunning: false, sessions: [] },
+                        { id: 'task3', name: 'Task 3', goal: 12, completed: 0, timer: null, startTime: null, isRunning: false, sessions: [] },
+                        { id: 'task4', name: 'Task 4', goal: 6, completed: 0, timer: null, startTime: null, isRunning: false, sessions: [] }
+                    ];
+                }
+                
+                // Render tasks and load last week's data
+                renderTasks();
+                loadLastWeekData();
+            }
+        });
+    </script>
+</body>
+</html>
